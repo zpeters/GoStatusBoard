@@ -5,16 +5,19 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"fmt"
+	"time"
 )
 
 /***
- - Where to default the database to
+ - last updated...
+ - current version
+ http://golang.org/pkg/os/exec/
  - how to integrate this into cron
  - html template
 ***/
 
-const jsonFile = "statuses.json"
-const htmlFile = "statuses.html"
+var jsonFile = os.Getenv("HOME") + "/" + ".status/statuses.json"
+const htmlFile = "/var/www/html/statuses.html"
 
 func printHelp() {
 	fmt.Printf("USAGE:\n")
@@ -32,10 +35,12 @@ func printHelp() {
 }
 
 func createEmptyDb() {
+	mkdir_err := os.Mkdir(os.Getenv("HOME") + "/.status", 0700)
+	if mkdir_err !=nil {panic(mkdir_err)}
 	m := make(map[string]string)
 	b, json_err := json.Marshal(m)
 	if json_err != nil { panic(json_err) }
-	write_err := ioutil.WriteFile(jsonFile, b, 0644)
+	write_err := ioutil.WriteFile(jsonFile, b, 0700)
 	if write_err != nil { panic(write_err) }
 }
 
@@ -62,10 +67,11 @@ func dumpStatus() {
 		d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td>%s</td></tr>\n", key, m[key])
 	}	
 	// footer
-	d += fmt.Sprintf("\t\t</table>\n\t</body>\n</html>\n")
+	t := time.Now()
+	d += fmt.Sprintf("\t\t</table>\n\t<hr>\n\r<i>Last Updated: %s</i>\t\n</body>\n</html>\n", t)
 
 	// write file
-	write_error := ioutil.WriteFile(htmlFile, []byte(d), 0644)
+	write_error := ioutil.WriteFile(htmlFile, []byte(d), 0700)
 	if write_error !=nil { panic(write_error) }
 }
 
@@ -93,7 +99,7 @@ func updateStatus(item string, status string) {
 	if marshall_error != nil { panic(marshall_error) }
 
 	// write json data tile file
-	write_error := ioutil.WriteFile(jsonFile, b, 0644)
+	write_error := ioutil.WriteFile(jsonFile, b, 0700)
 	if write_error !=nil { panic(write_error) }	
 }
 
