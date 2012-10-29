@@ -7,6 +7,12 @@ import (
 	"fmt"
 )
 
+/***
+ - Where to default the database to
+ - how to integrate this into cron
+ - html template
+***/
+
 const jsonFile = "statuses.json"
 const htmlFile = "statuses.html"
 
