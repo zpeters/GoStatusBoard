@@ -8,13 +8,21 @@ import (
 )
 
 const jsonFile = "statuses.json"
-const debug = true
+const htmlFile = "statuses.html"
 
 func printHelp() {
-	args := os.Args
 	fmt.Printf("USAGE:\n")
-	fmt.Printf("statusboard: ACTION OPTIONS\n")
-	fmt.Printf("\t update ITEM STATUS\n")
+	fmt.Printf("statusboard ACTION OPTIONS\n")
+	fmt.Printf("\n")
+	fmt.Printf("\t statusboard update ITEM STATUS\n")
+	fmt.Printf("\t\t ITEM = name of service\n")
+	fmt.Printf("\t\t STATUS = status of service\n")
+	fmt.Printf("\n")
+	fmt.Printf("\t statusboard dump\n")
+	fmt.Printf("\t\t dumps the current statues to html\n")
+	fmt.Printf("\n")
+	fmt.Printf("\t statusboard help\n")
+	fmt.Printf("\t\t This file\n")
 }
 
 func createEmptyDb() {
@@ -23,6 +31,36 @@ func createEmptyDb() {
 	if json_err != nil { panic(json_err) }
 	write_err := ioutil.WriteFile(jsonFile, b, 0644)
 	if write_err != nil { panic(write_err) }
+}
+
+func dumpStatus() {
+	// check if db exists - if not create a blank one
+	_, err := os.Stat(jsonFile)
+	if err != nil { createEmptyDb() }	
+
+	// create any empty map to hold json contents
+	m := make(map[string]string)
+
+	// read current statues file
+	r, read_err := ioutil.ReadFile(jsonFile)
+	if read_err != nil { panic(read_err) }	
+
+	// unmarshall data read in from file
+	unmarshall_error:= json.Unmarshal(r, &m)
+	if unmarshall_error != nil { panic(unmarshall_error) }
+
+	// create the header
+	d := fmt.Sprintf("<html>\n\t<head>\n\t\t<title>Title</title>\n\t</head>\n\t<body>\n\t\t<table>\n")
+	// dump data
+	for key := range m {
+		d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td>%s</td></tr>\n", key, m[key])
+	}	
+	// footer
+	d += fmt.Sprintf("\t\t</table>\n\t</body>\n</html>\n")
+
+	// write file
+	write_error := ioutil.WriteFile(htmlFile, []byte(d), 0644)
+	if write_error !=nil { panic(write_error) }
 }
 
 func updateStatus(item string, status string) {
@@ -65,6 +103,10 @@ func main () {
 			} else {
 				printHelp()
 			}
+		case "dump":
+			dumpStatus()
+		case "help":
+			printHelp()
 		default:
 			printHelp()
 		}
