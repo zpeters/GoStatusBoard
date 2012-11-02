@@ -73,7 +73,7 @@ func outputStatus() {
 	fmt.Printf(d)
 }
 
-func updateStatus(item string, status string) {
+func updateStatus(object string, status string) {
 	// check if db exists - if not create a blank one
 	_, err := os.Stat(jsonFile)
 	if err != nil { createEmptyDb() }	
@@ -90,7 +90,7 @@ func updateStatus(item string, status string) {
 	if unmarshall_error != nil { panic(unmarshall_error) }
 
 	// set map with the passed in data
-	m[item] = status
+	m[object] = status
 
 	// marshall data
 	b, marshall_error := json.Marshal(m)
