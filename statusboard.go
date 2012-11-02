@@ -4,6 +4,7 @@ import (
 	"os"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"fmt"
 	"time"
 )
