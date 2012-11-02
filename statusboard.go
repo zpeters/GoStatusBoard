@@ -38,7 +38,7 @@ func createEmptyDb() {
 	if write_err != nil { panic(write_err) }
 }
 
-func dumpStatus() {
+func outputStatus() {
 	// check if db exists - if not create a blank one
 	_, err := os.Stat(jsonFile)
 	if err != nil { createEmptyDb() }	
@@ -55,18 +55,22 @@ func dumpStatus() {
 	if unmarshall_error != nil { panic(unmarshall_error) }
 
 	// create the header
-	d := fmt.Sprintf("<html>\n\t<head>\n\t\t<title>Title</title>\n\t</head>\n\t<body>\n\t\t<table>\n")
+	d := fmt.Sprintf("<html>\n\t<head>\n\t\t<title>Title</title>\n\t</head>\n\t<body>\n\t\t<table style=\"border: 3px solid #DDD;\">\n")
 	// dump data
 	for key := range m {
-		d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td>%s</td></tr>\n", key, m[key])
+		if m[key] == "Success" {
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#468847;background-color:#DFF0D8;\">%s</td></tr>\n", key, m[key])
+		} else if m[key] == "Fail" {
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#d64d4d;background-color:#f0d8d8;\">%s</td></tr>\n", key, m[key])
+		} else {
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td>%s</td></tr>\n", key, m[key])
+		}
 	}	
 	// footer
 	t := time.Now()
 	d += fmt.Sprintf("\t\t</table>\n\t<hr>\n\r<i>Last Updated: %s</i>\t\n</body>\n</html>\n", t)
 
-	// write file
-	write_error := ioutil.WriteFile(htmlFile, []byte(d), 0700)
-	if write_error !=nil { panic(write_error) }
+	fmt.Printf(d)
 }
 
 func updateStatus(item string, status string) {
