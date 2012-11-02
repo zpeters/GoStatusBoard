@@ -11,11 +11,7 @@ import (
 )
 
 /***
- - last updated...
- - current version
- http://golang.org/pkg/os/exec/
- - how to integrate this into cron
- - html template
+ - last updated field
 ***/
 
 var jsonFile = os.Getenv("HOME") + "/" + ".status/statuses.json"
