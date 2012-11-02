@@ -25,8 +25,12 @@ func Usage() {
 }
 
 func createEmptyDb() {
-	mkdir_err := os.Mkdir(os.Getenv("HOME") + "/.status", 0700)
-	if mkdir_err !=nil {panic(mkdir_err)}
+	if _, err := os.Stat(os.Getenv("HOME") + "/.status"); err != nil {
+		if os.IsNotExist(err) {
+			mkdir_err := os.Mkdir(os.Getenv("HOME") + "/.status", 0700)
+			if mkdir_err !=nil {panic(mkdir_err)}
+		}
+	}
 	m := make(map[string]string)
 	b, json_err := json.Marshal(m)
 	if json_err != nil { panic(json_err) }
