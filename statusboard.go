@@ -7,6 +7,7 @@ import (
 	"log"
 	"fmt"
 	"time"
+	"flag"
 )
 
 /***
@@ -18,21 +19,13 @@ import (
 ***/
 
 var jsonFile = os.Getenv("HOME") + "/" + ".status/statuses.json"
-const htmlFile = "/var/www/html/statuses.html"
+const Version = "0.1"
 
-func printHelp() {
-	fmt.Printf("USAGE:\n")
-	fmt.Printf("statusboard ACTION OPTIONS\n")
-	fmt.Printf("\n")
-	fmt.Printf("\t statusboard update ITEM STATUS\n")
-	fmt.Printf("\t\t ITEM = name of service\n")
-	fmt.Printf("\t\t STATUS = status of service\n")
-	fmt.Printf("\n")
-	fmt.Printf("\t statusboard dump\n")
-	fmt.Printf("\t\t dumps the current statues to html\n")
-	fmt.Printf("\n")
-	fmt.Printf("\t statusboard help\n")
-	fmt.Printf("\t\t This file\n")
+func Usage() {
+	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "\t [-d] Turn on debugging\n")
+	fmt.Fprintf(os.Stderr, "\t update OBJECT STATUS - Set objects status\n")
+	fmt.Fprintf(os.Stderr, "\t output - Dump current statuses\n")
 }
 
 func createEmptyDb() {
@@ -105,26 +98,43 @@ func updateStatus(item string, status string) {
 }
 
 func main () {
-	args := os.Args
-	if len(args) > 1  {
-		action := args[1]
+	var debug = flag.Bool("d", false, "Turn debugging on")
+
+	flag.Parse()
+	
+	if *debug == true { log.Printf("Flags: %v\n", flag.NFlag()) }
+	if *debug == true { log.Printf("Args: %v\n", flag.NArg()) }
+
+
+	if (flag.NFlag() == 0) && (flag.NArg() == 0) {
+		Usage()
+		return
+	} else {
+		args := flag.Args()
+		action := args[0]
+		if *debug == true { log.Printf("Processing Action '%s'", action) }
 		switch action {
 		case "update":
-			if len(args) == 4 {
-				item, status := args[2], args[3]
-				updateStatus(item, status)
+			if len(args) == 3 {
+				object := args[1]
+				status := args[2]
+				if *debug == true { log.Printf("Action '%s', Object '%s', Status '%s'", action, object, status) }
+				updateStatus(object, status)
 			} else {
-				printHelp()
+				Usage()
+				return
 			}
-		case "dump":
-			dumpStatus()
-		case "help":
-			printHelp()
+		case "output":
+			if len(args) == 1 {
+				if *debug == true { log.Printf("Outputting data") }
+				outputStatus()
+			} else {
+				Usage()
+				return
+			}
 		default:
-			printHelp()
+			Usage()
+			return
 		}
-
-	} else {
-		printHelp()
 	}
 }
