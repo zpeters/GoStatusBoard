@@ -10,12 +10,14 @@ import (
 	"flag"
 )
 
-/***
- - last updated field
-***/
-
 var jsonFile = os.Getenv("HOME") + "/" + ".status/statuses.json"
-const Version = "0.1"
+const Version = "0.2"
+
+type Record struct {
+	Object string
+	Status string
+	Timestamp time.Time
+}
 
 func Usage() {
 	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -31,7 +33,7 @@ func createEmptyDb() {
 			if mkdir_err !=nil {panic(mkdir_err)}
 		}
 	}
-	m := make(map[string]string)
+	m := make(map[string]Record)
 	b, json_err := json.Marshal(m)
 	if json_err != nil { panic(json_err) }
 	write_err := ioutil.WriteFile(jsonFile, b, 0700)
@@ -44,7 +46,7 @@ func outputStatus() {
 	if err != nil { createEmptyDb() }	
 
 	// create any empty map to hold json contents
-	m := make(map[string]string)
+	m := make(map[string]Record)
 
 	// read current statues file
 	r, read_err := ioutil.ReadFile(jsonFile)
@@ -58,12 +60,13 @@ func outputStatus() {
 	d := fmt.Sprintf("<html>\n\t<head>\n\t\t<title>Title</title>\n\t</head>\n\t<body>\n\t\t<table style=\"border: 3px solid #DDD;\">\n")
 	// dump data
 	for key := range m {
-		if m[key] == "Success" {
-			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#468847;background-color:#DFF0D8;\">%s</td></tr>\n", key, m[key])
-		} else if m[key] == "Fail" {
-			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#d64d4d;background-color:#f0d8d8;\">%s</td></tr>\n", key, m[key])
+		rec := m[key]
+		if rec.Status == "Success" {
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#468847;background-color:#DFF0D8;\">%s</td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
+		} else if rec.Status == "Fail" {
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#d64d4d;background-color:#f0d8d8;\">%s</td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
 		} else {
-			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td>%s</td></tr>\n", key, m[key])
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
 		}
 	}	
 	// footer
@@ -79,7 +82,7 @@ func updateStatus(object string, status string) {
 	if err != nil { createEmptyDb() }	
 
 	// create any empty map to hold json contents
-	m := make(map[string]string)
+	m := make(map[string]Record)
 
 	// read current statues file
 	r, read_err := ioutil.ReadFile(jsonFile)
@@ -89,8 +92,15 @@ func updateStatus(object string, status string) {
 	unmarshall_error:= json.Unmarshal(r, &m)
 	if unmarshall_error != nil { panic(unmarshall_error) }
 
+	// create a record from the passed in data
+	rec := Record{
+		Object: object,
+		Status: status,
+		Timestamp: time.Now(),
+	}
+
 	// set map with the passed in data
-	m[object] = status
+	m[rec.Object] = rec
 
 	// marshall data
 	b, marshall_error := json.Marshal(m)
