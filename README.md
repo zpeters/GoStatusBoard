@@ -6,22 +6,23 @@ A simple Go frontend to a json database. This is a simple "key store" that allow
 Usage
 -----
 
-Usage of statusboard:
+    Usage of statusboard:
          [-d] Turn on debugging
          update OBJECT STATUS - Set objects status
          output - Dump current statuses
 
 Example
 -------
-statusboard update httpd Running
-statusboard update smtpd Failed
+    statusboard update httpd Running
+    statusboard update smtpd Failed
 
 Crontab Examples
 ----------------
-00 06 * * * if someCommandThatReturnsAnErrorCode; then statusboard update "My Thing" "Success"; else statusboard update "My Thing" "Fail"; fi
+    00 06 * * * if someCommandThatReturnsAnErrorCode; then statusboard update "My Thing" "Success"; else statusboard update "My Thing" "Fail"; fi
 
 Script Example
 --------------
+```shell
 #!/bin/sh
 tar czf /tmp/mytar.tar.gz /myfiles
 TAR_RESULT=$?
@@ -31,7 +32,8 @@ then
 else
 	statusboard update "Tar Operation" "Success"
 fi
+```
 
 HTML Output
 -----------
-statusboard output > /var/www/html/status.html
+    statusboard output > /var/www/html/status.html
