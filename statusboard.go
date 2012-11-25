@@ -57,21 +57,21 @@ func outputStatus() {
 	if unmarshall_error != nil { panic(unmarshall_error) }
 
 	// create the header
-	d := fmt.Sprintf("<html>\n\t<head>\n\t\t<title>Title</title>\n\t</head>\n\t<body>\n\t\t<table style=\"border: 3px solid #DDD;\">\n")
+	d := fmt.Sprintf("<!DOCTYPE html>\n<html lang=\"en\">\n\t<head>\n\t\t<title>StatusBoard</title>\n\t\t<link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"\n\t</head>\n\t<body>\n\t<script=\"js/jquery-1.8.3.min.js\"></script>\n\t<script src=\"js/bootstrap.min.js\"></script>\n\t<div class=\"row\">\n\t<div class=\"span8\">\n\t\t<table class=\"table table-bordered table-condensed table-striped table-hover\">\n")
 	// dump data
 	for key := range m {
 		rec := m[key]
 		if rec.Status == "Success" {
-			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#468847;background-color:#DFF0D8;\">%s</td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td><span class=\"label label-success\">%s</span></td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
 		} else if rec.Status == "Fail" {
-			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td style=\"color:#d64d4d;background-color:#f0d8d8;\">%s</td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td><span class=\"label label-important\">%s</span></td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
 		} else {
-			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
+			d += fmt.Sprintf("\t\t\t<tr><td>%s</td><td><span class=\"label\">%s</span></td><td>%s</td></tr>\n", rec.Object, rec.Status, rec.Timestamp)
 		}
 	}	
 	// footer
 	t := time.Now()
-	d += fmt.Sprintf("\t\t</table>\n\t<hr>\n\r<i>Last Updated: %s</i>\t\n</body>\n</html>\n", t)
+	d += fmt.Sprintf("\t\t</table>\n\t<hr>\n\r<i>Last Updated: %s</i>\t\n</div>\n\t</div>/n/t</body>\n</html>\n", t)
 
 	fmt.Printf(d)
 }
