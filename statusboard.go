@@ -57,7 +57,7 @@ func outputStatus() {
 	if unmarshall_error != nil { panic(unmarshall_error) }
 
 	// create the header
-	d := fmt.Sprintf("<!DOCTYPE html>\n<html lang=\"en\">\n\t<head>\n\t\t<title>StatusBoard</title>\n\t\t<link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"\n\t</head>\n\t<body>\n\t<script=\"js/jquery-1.8.3.min.js\"></script>\n\t<script src=\"js/bootstrap.min.js\"></script>\n\t<div class=\"row\"><div class=\"span8\"><h1>StatusBoard</h1></div></div>\n\t<div class=\"row\">\n\t<div class=\"span8\">\n\t\t<table class=\"table table-bordered table-condensed table-striped table-hover\">\n")
+	d := fmt.Sprintf("<!DOCTYPE html>\n<html lang=\"en\">\n\t<head>\n\t\t<title>StatusBoard</title>\n\t\t<link href=\"css/bootstrap.min.css\" rel=\"stylesheet\" media=\"screen\"\n\t</head>\n\t<body style=\"background-color: #dddddd;\">\n\t<script=\"js/jquery-1.8.3.min.js\"></script>\n\t<script src=\"js/bootstrap.min.js\"></script>\n\t<div class=\"row\"><div class=\"span8\"><h1>StatusBoard</h1></div></div>\n\t<div class=\"row\">\n\t<div class=\"span8\">\n\t\t<table class=\"table table-bordered table-condensed table-striped table-hover\">\n")
 	// dump data
 	for key := range m {
 		rec := m[key]
