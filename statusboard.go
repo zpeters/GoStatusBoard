@@ -188,18 +188,18 @@ func main () {
 				object := args[2]
 				success_status := args[3]
 				fail_status := args[4]
-				if debug { log.Printf("Command: %s\n", command) }
-				if debug { log.Printf("Object: %s\n", object) }
-				if debug { log.Printf("Success: %s\n", success_status) }
-				if debug { log.Printf("Fail: %s\n", fail_status) }
+				if debug { log.Printf("Command: '%s'\n", command) }
+				if debug { log.Printf("Object: '%s'\n", object) }
+				if debug { log.Printf("Success: '%s'\n", success_status) }
+				if debug { log.Printf("Fail: '%s'\n", fail_status) }
 				if debug { log.Printf("Getting results for '%s'\b", command) }
 				returnCode := runCommandAndReturnStatus(command)
 				if debug { log.Printf("Return code: %d\n", returnCode) }
 				if returnCode == 0 {
-					if debug { log.Printf("Updating %s with %s\n", object, success_status) }
+					if debug { log.Printf("Updating '%s' with '%s'\n", object, success_status) }
 					updateStatus(object, success_status)
 				} else {
-					if debug { log.Printf("Updating %s with %s\n", object, fail_status) }
+					if debug { log.Printf("Updating '%s' with '%s'\n", object, fail_status) }
 					updateStatus(object, fail_status)
 				}
 			} else {
