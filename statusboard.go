@@ -8,9 +8,13 @@ import (
 	"fmt"
 	"time"
 	"flag"
+	"os/exec"
+	"strings"
+	"syscall"
 )
 
 var jsonFile = os.Getenv("HOME") + "/" + ".status/statuses.json"
+var debug = false
 const Version = "0.2"
 
 type Record struct {
@@ -24,6 +28,7 @@ func Usage() {
 	fmt.Fprintf(os.Stderr, "\t [-d] Turn on debugging\n")
 	fmt.Fprintf(os.Stderr, "\t update OBJECT STATUS - Set objects status\n")
 	fmt.Fprintf(os.Stderr, "\t output - Dump current statuses\n")
+	fmt.Fprintf(os.Stderr, "\t test COMMAND OBJECT SUCCESS_STATUS FAIL_STATUS - Run command COMMAND if exit code is 0 update OBJECT with SUCCESS_STATUS, otherwise OBJECT with FAIL_STATUS\n")
 }
 
 func createEmptyDb() {
@@ -111,13 +116,43 @@ func updateStatus(object string, status string) {
 	if write_error !=nil { panic(write_error) }	
 }
 
+func runCommandAndReturnStatus(command string)  int {
+	var returnCode = 0
+	
+	cmdString := strings.Fields(command)
+	if debug { log.Printf("Cmd: '%s'\n", cmdString) }
+
+	out, err := exec.Command(cmdString[0], cmdString[1:]...).Output()
+	if err != nil {
+		if debug { log.Printf("Err: %s\n", err) }
+		// Couldn't run the command, returning our own error code 1
+		if debug { log.Printf("Setting error code to 1\n") }
+		returnCode = 1
+		return returnCode
+	}
+
+
+	// get the OS exit code
+	if msg, ok := err.(*exec.ExitError); ok {
+		code := msg.Sys().(syscall.WaitStatus).ExitStatus()
+		if debug { log.Printf("Output: %s\n", out) }
+		if debug { log.Printf("Error code not 0: %s\n", code) }
+		returnCode = code
+	} else {
+		if debug { log.Printf("Output: %s\n", out) }
+		if debug { log.Printf("Error code is 0\n") }
+		returnCode = 0
+	}
+	return returnCode
+}
+
 func main () {
-	var debug = flag.Bool("d", false, "Turn debugging on")
+	flag.BoolVar(&debug, "d", false, "Turn debugging on")
 
 	flag.Parse()
 	
-	if *debug == true { log.Printf("Flags: %v\n", flag.NFlag()) }
-	if *debug == true { log.Printf("Args: %v\n", flag.NArg()) }
+	if debug { log.Printf("Flags: %v\n", flag.NFlag()) }
+	if debug { log.Printf("Args: %v\n", flag.NArg()) }
 
 
 	if (flag.NFlag() == 0) && (flag.NArg() == 0) {
@@ -126,13 +161,13 @@ func main () {
 	} else {
 		args := flag.Args()
 		action := args[0]
-		if *debug == true { log.Printf("Processing Action '%s'", action) }
+		if debug { log.Printf("Processing Action '%s'", action) }
 		switch action {
 		case "update":
 			if len(args) == 3 {
 				object := args[1]
 				status := args[2]
-				if *debug == true { log.Printf("Action '%s', Object '%s', Status '%s'", action, object, status) }
+				if debug { log.Printf("Action '%s', Object '%s', Status '%s'", action, object, status) }
 				updateStatus(object, status)
 			} else {
 				Usage()
@@ -140,8 +175,33 @@ func main () {
 			}
 		case "output":
 			if len(args) == 1 {
-				if *debug == true { log.Printf("Outputting data") }
+				if debug { log.Printf("Outputting data") }
 				outputStatus()
+			} else {
+				Usage()
+				return
+			}
+
+		case "test":
+			if len(args) == 5 {
+				command := args[1]
+				object := args[2]
+				success_status := args[3]
+				fail_status := args[4]
+				if debug { log.Printf("Command: %s\n", command) }
+				if debug { log.Printf("Object: %s\n", object) }
+				if debug { log.Printf("Success: %s\n", success_status) }
+				if debug { log.Printf("Fail: %s\n", fail_status) }
+				if debug { log.Printf("Getting results for '%s'\b", command) }
+				returnCode := runCommandAndReturnStatus(command)
+				if debug { log.Printf("Return code: %d\n", returnCode) }
+				if returnCode == 0 {
+					if debug { log.Printf("Updating %s with %s\n", object, success_status) }
+					updateStatus(object, success_status)
+				} else {
+					if debug { log.Printf("Updating %s with %s\n", object, fail_status) }
+					updateStatus(object, fail_status)
+				}
 			} else {
 				Usage()
 				return
