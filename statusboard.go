@@ -124,6 +124,7 @@ func runCommandAndReturnStatus(command string)  int {
 
 	out, err := exec.Command(cmdString[0], cmdString[1:]...).Output()
 	if err != nil {
+		fmt.Printf("Err: %s\n", err)
 		if debug { log.Printf("Err: %s\n", err) }
 		// Couldn't run the command, returning our own error code 1
 		if debug { log.Printf("Setting error code to 1\n") }
@@ -135,6 +136,7 @@ func runCommandAndReturnStatus(command string)  int {
 	// get the OS exit code
 	if msg, ok := err.(*exec.ExitError); ok {
 		code := msg.Sys().(syscall.WaitStatus).ExitStatus()
+		fmt.Printf("Output: %s\n", out)
 		if debug { log.Printf("Output: %s\n", out) }
 		if debug { log.Printf("Error code not 0: %s\n", code) }
 		returnCode = code
