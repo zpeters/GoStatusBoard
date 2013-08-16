@@ -19,11 +19,12 @@ Example
     statusboard test SomethingThatFails Service Running Failed (updates database with "Service Failed" assuming it fails)
     statusboard test "ls -ahl" Listing Passed Failed (updates database with "Listing Passed" assuming it passed)
 
-Crontab Examples (old version)
-----------------
-    00 06 * * * if someCommandThatReturnsAnErrorCode; then statusboard update "My Thing" "Success"; else statusboard update "My Thing" "Fail"; fi
 
-Crontab Examples (new)
+Example (one off)
+-------------------
+statusboard update "My Foo" "Updating"
+
+Crontab Examples (testing a return code)
 ----------------
     00 06 * * * statusboard test someCommandThatReturnsAnErrorCode "My Thing" "Success" "Fail"
 
